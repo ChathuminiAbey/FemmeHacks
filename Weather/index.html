@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<!-- Template by Quackit.com -->
+<html>
+<head>
+    <style> 
+        #headerDIV 
+        {
+            width: 100%;
+            height: 200px;
+            background-color: #599bb3;
+            color: white;
+            font-family: times new roman;
+            font-size: 20px;
+        }
+
+        #myDIV 
+        {
+            width: 100%;
+            height: 100px;
+            background-color: coral;
+            color: white;
+            font-family: times new roman;
+            font-size: 20px;
+        }
+        body {
+    background-image:url("wood.jpg");
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+}
+html {
+    background: url(wood.jpg) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+    height: 100%
+}
+    </style>
+
+    <title>Weather</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS: You can use this stylesheet to override any Bootstrap styles and/or apply your own styles -->
+    <link href="css/custom.css" rel="stylesheet">
+
+    <script>
+        //varable for key entered by user
+        function createTable(json)
+        {
+            //var d = new Date();
+            //set variable length equal to the length of the hourly forecast array
+            var length = json.hourly_forecast.length;
+            
+            //for loop the goes on until the length of array
+            for(i=0; i<length; i++)
+            {
+                //var row that creates table row
+                var row = document.createElement("tr");
+                //adds row to tbody
+                document.getElementById("tbody").appendChild(row);
+                //document.getElementById("demo").appendChild(row);
+                //sets cell1 equal to column 1
+                var cell1 = row.insertCell(0);
+                //sets cell2 equal to column 2
+                var cell2 = row.insertCell(1);
+                //sets cell3 to weather number
+                var cell3 = row.insertCell(2);
+                //creates var for image
+                var image = document.createElement("img");
+                //sets the source of image equal to data in hourly_forecast
+                image.src = json.hourly_forecast[i].icon_url;
+                //sets cell1 equal to the pretty version of hourly forecast
+                cell1.innerHTML = json.hourly_forecast[i].FCTTIME.civil;
+                //sets cell2 to the image
+                cell2.appendChild(image);
+                //sets cell3 to the temperature number
+                cell3.innerHTML = json.hourly_forecast[i].temp.english + "°F";
+            }
+        }
+
+                 function createTable1(json){
+                var row = document.createElement("tr");
+                //adds row to tbody
+                document.getElementById("tb").appendChild(row);
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                if(  json.hourly_forecast[0].temp.english <=32 ){
+                    
+                    document.getElementById("temp").innerHTML = "It's below freezing! Wear a heavy coat, gloves, hat, boots, and bundle up tight!";
+                    //cell1.innerHTML = "";
+                }
+               else if( json.hourly_forecast[0].temp.english >33 && json.hourly_forecast[0].temp.english <=50){
+                    
+                
+                    document.getElementById("temp").innerHTML = "It's pretty chilly! Throw on a sweater and a light jacket";
+                }
+               else if(json.hourly_forecast[0].temp.english >=51 && json.hourly_forecast[0].temp.english<=70){
+                    
+                
+                 document.getElementById("temp").innerHTML = "Expecting some nice weather! Roll out those springtime clothes!";
+                }
+                else{
+                    
+                
+                 document.getElementById("temp").innerHTML = "It's gonna be a blazer! Make sure to put on sunscreen, a hat, and sunglasses to avoid sunburns";
+                 //cell1.innerHTML = "";
+
+                }
+            }
+
+        
+        function weather()
+        {
+            //variable that gets the Key inputted by user
+            var Zipcode = document.getElementById("Zipcode").value;
+            //var URL that creates URL by using the Key
+            var URL = "http://api.wunderground.com/api/9201a2cdcac35d6f/geolookup/q/autoip.json";
+            
+            //jQuery's ajax function
+            $.ajax(
+            {
+                //bring back data from servers side
+                type: "GET",
+                //sets address of the URL created above
+                url: URL,
+                //format type that we'rd sending to server
+                contentType: "application/json; charset=utf-8",
+                data: "{}",
+                //allows browser to interpret response as JSON from any source
+                dataType: "jsonp",
+                
+                success: function(msg) 
+                {
+                    var json = msg;
+                    var zip = json.location.zip;
+                    //sets variable equal to the link with Key in it to find hourly weather
+                    var hourlyURL = "http://api.wunderground.com/api/9201a2cdcac35d6f/hourly/q/" + Zipcode + ".json";
+                    //" + zip + ".json";
+                    
+                    $.ajax(
+                    {
+                        //bring back data from servers side
+                        type: "GET",
+                        //sets address of the hourlyURL created above
+                        url: hourlyURL,
+                        //format type that we'rd sending to server
+                        contentType: "application/json; charset=utf-8",
+                        data: "{}",
+                        //allows browser to interpret response as JSON from any source
+                        dataType: "jsonp",
+                        
+                        success: function(msg) 
+                        {
+                            var json = msg;
+                            //calls the createTable function
+                            createTable(json);
+                            createTable1(json);
+                        },
+                        //error message that will come if couldn't find the hourly weather with key entered
+                        error: function (xhr, ajaxOptions, thrownError) 
+                        {
+                            document.getElementById("div1").innerHTML = "Error fetching " + hourlyURL;
+                        }
+                    });
+                },
+                //error message if couldn't work the URL
+                error: function (xhr, ajaxOptions, thrownError) {
+                document.getElementById("div1").innerHTML = "Error fetching " + URL;
+                }
+            });
+            document.getElementById("Zipcode") = "";
+        }
+        
+        function reset()
+        {
+            document.getElementById("Zipcode") = "";
+        }
+    </script>
+        
+        <!---script sources-->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js">
+            </script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js">
+            </script>
+        <!--<link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css"/>-->
+        </head>
+
+<body background="wood.jpg">
+    <center>
+        <h1 id="demo"></h1>
+        </center>
+        <script>
+             document.getElementById("demo").innerHTML = new Date().toDateString() + " " + new Date().toLocaleTimeString();
+        </script>
+
+	<div class="jumbotron feature" style="height:260px">
+		<div class="container">
+            <h1 style="color:white; font-family:courier;">Welcome to your new morning wake up call...</h1>
+		</div>
+	</div>
+
+    <!-- Content -->
+    <div class="container">
+
+        <!-- Feature Row -->
+        <div class="row">
+            <article class="col-md-4 article-intro">
+                
+                        <div id="WeatherTableDiv" style="height:400px;width:300px;overflow:auto;background-color:rgb(23, 172, 172);color:white;scrollbar-base-color:gold;font-family:sans-serif;font-size:20px;padding:10px;">
+                                <!--text field where user can enter key-->
+                                <input type = "text" id = "Zipcode" style="color:black" placeholder="Zipcode"/>
+                                <br>
+                                <!--button that user can press. calls the weather() function when pressed-->
+                                <button class="btn btn-primary" id = "button" onclick = "weather()">Get Weather!</button>
+                                <br>
+                                <br>
+                                <button class="btn btn-primary" type="reset" onclick="document.location.reload()">New Zipcode</button>
+                                <!--where all the output is displayed-->
+                                <center>
+                                <div id="div1"></div>
+                                <!--table that shows the weather forecast-->
+                                <table data-role="table" class="ui-responsive" id="WeatherTable">
+                                    <tbody id="tbody"></tbody>
+                                </table>
+                            </div>
+                <h1 style="color:white;">Hourly Weather by Wunderground</h1>
+            </article>
+
+            <article class="col-md-4 article-intro">
+                    <div id="Spotify">
+                            <iframe src="https://open.spotify.com/embed?uri=spotify:user:spotify:playlist:37i9dQZF1DXcBWIGoYBM5M" 
+                                width="300" height="380" frameborder="0" allowtransparency="true">
+                            </iframe>
+                        </div>
+                <h1 style="color:white;">Spotify Top Hits</h1>
+            </article>
+
+            <article class="col-md-4 article-intro">
+                           <div id="Clothes" style="height:400px;width:300px;overflow:auto;background-color:rgb(23, 172, 172);color:white;scrollbar-base-color:gold;font-family:courier;font-size:20px;padding:10px;">
+                            <p id="temp"></p>
+                                            <table data-role="table" class="ui-responsive" id="tba">
+                                                <tbody id="tb"></tbody>
+                                            </table>
+                                            </div>
+                    <h1 style="color:white;">What to wear today!</h1>
+                </article>
+                
+        </div>
+        <!-- /.row -->
+    </div>
+
+        <!-- jQuery -->
+        <script src="js/jquery-1.11.3.min.js"></script>
+
+        <!-- Bootstrap Core JavaScript -->
+        <script src="js/bootstrap.min.js"></script>
+        
+        <!-- IE10 viewport bug workaround -->
+        <script src="js/ie10-viewport-bug-workaround.js"></script>
+        
+        <!-- Placeholder Images -->
+        <script src="js/holder.min.js"></script>
+
+    <!--footer-->
+	<footer>
+        	<div id="myDIV">
+                <center>
+                <br>
+        		<p>By: Chathumini Abeyratna Naimisha Rachakonda</p>
+                <p>FemmeHacks 2018</p>
+                </center>
+            </div>    
+	</footer>
+</body>
+</html>
